@@ -226,7 +226,7 @@ public class cardDeliveryTest {
         form.$("[data-test-id = 'city'] input").setValue("Казань");
         form.$("[data-test-id = 'date'] input").setValue(setDate(3));
         form.$("[data-test-id = 'name'] input").setValue("Петров Анатолий");
-        form.$("[data-test-id = 'phone'] input").setValue("number");
+        form.$("[data-test-id = 'phone'] input").setValue("+71234567890");
         //form.$("[data-test-id = 'agreement']").click();
         form.$$("[type = 'button']").last().click();
 
