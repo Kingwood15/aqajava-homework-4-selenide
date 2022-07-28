@@ -58,7 +58,21 @@ public class cardDeliveryTest {
     }
 
     @Test
-    void shouldTestOrderPositive() {
+    void shouldTestOrderAdminCenter() {
+        SelenideElement form = $(".form");
+
+        form.$("[data-test-id = 'city'] input").setValue("Уфа");
+        form.$("[data-test-id = 'date'] input").setValue(setDate(3));
+        form.$("[data-test-id = 'name'] input").setValue("Иванова Анна");
+        form.$("[data-test-id = 'phone'] input").setValue("+71234567890");
+        form.$("[data-test-id = 'agreement']").click();
+        form.$$("[type = 'button']").last().click();
+
+        $("[data-test-id='notification']").shouldBe(visible, Duration.ofSeconds(15));
+    }
+
+    @Test
+    void shouldTestOrderAdminCenterHyphenated() {
         SelenideElement form = $(".form");
 
         form.$("[data-test-id = 'city'] input").setValue("Улан-Удэ");
@@ -227,7 +241,6 @@ public class cardDeliveryTest {
         form.$("[data-test-id = 'date'] input").setValue(setDate(3));
         form.$("[data-test-id = 'name'] input").setValue("Петров Анатолий");
         form.$("[data-test-id = 'phone'] input").setValue("+71234567890");
-        //form.$("[data-test-id = 'agreement']").click();
         form.$$("[type = 'button']").last().click();
 
         $("[data-test-id='agreement'] [class='checkbox__text']").shouldHave(exactText("Я соглашаюсь с" +
