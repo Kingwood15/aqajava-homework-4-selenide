@@ -1,96 +1,76 @@
 package ru.netology.domain;
 
+import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.SelenideElement;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.openqa.selenium.Keys;
 
 import java.time.*;
+import java.time.format.DateTimeFormatter;
 
 import static com.codeborne.selenide.Condition.exactText;
-import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.open;
 
-public class cardDeliveryTest {
+public class CardDeliveryTest {
 
     @BeforeEach
     void openBrowser() {
         open("http://localhost:9999");
     }
 
-    public String setDate(int shiftDay) {
-        LocalDate date = LocalDate.now();
-        String testDate;
-
-        // изменение даты minus[Days][weeks][months][years](int n): отнимает от даты некоторое количество дней,
-        // plus[Days][weeks][months][years](int n): добавляет к дате некоторое количество дней
-        // сдиг даты относительно сегоднешнего дня
-        if (shiftDay != 0) {
-            date = date.plusDays(shiftDay);
-        }
-        // контроль за временем
-        System.out.println("Trace of time: " + date);
-        // переворачиваем написание даты
-        int day = date.getDayOfMonth();
-        int month = date.getMonthValue();
-        int year = date.getYear();
-        // добавляем 0, если день и/или месяц состоят из одного числа
-        if (day < 10) {
-            if (month < 10) {
-                testDate = String.join(".", "0" + Integer.toString(day), "0" + Integer.toString(month), Integer.toString(year));
-            } else {
-                testDate = String.join(".", "0" + Integer.toString(day), Integer.toString(month), Integer.toString(year));
-            }
-        } else {
-            if (month < 10) {
-                testDate = String.join(".", Integer.toString(day), "0" + Integer.toString(month), Integer.toString(year));
-            } else {
-                testDate = String.join(".", Integer.toString(day), Integer.toString(month), Integer.toString(year));
-            }
-        }
-        // контроль за временем
-        System.out.println("Trace of time: " + testDate);
-        // делаем поле даты доступной для записи
-        $(".form").$("[data-test-id = 'date'] input").doubleClick();
-        $("[data-test-id=date] input").sendKeys("BackSpace");
-
-        return testDate;
+    public String generateDate(int days) {
+        return LocalDate.now().plusDays(days).format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
     }
 
     @Test
     void shouldTestOrderAdminCenter() {
         SelenideElement form = $(".form");
+        String planningDate = generateDate(3);
 
         form.$("[data-test-id = 'city'] input").setValue("Уфа");
-        form.$("[data-test-id = 'date'] input").setValue(setDate(3));
+        form.$("[data-test-id = 'date'] input").doubleClick();
+        $("[data-test-id=date] input").sendKeys(Keys.BACK_SPACE);
+        form.$("[data-test-id = 'date'] input").setValue(planningDate);
         form.$("[data-test-id = 'name'] input").setValue("Иванова Анна");
         form.$("[data-test-id = 'phone'] input").setValue("+71234567890");
         form.$("[data-test-id = 'agreement']").click();
         form.$$("[type = 'button']").last().click();
 
-        $("[data-test-id='notification']").shouldBe(visible, Duration.ofSeconds(15));
+        $(".notification__content")
+                .shouldHave(Condition.text("Встреча успешно забронирована на " + planningDate), Duration.ofSeconds(15))
+                .shouldBe(Condition.visible);
     }
 
     @Test
     void shouldTestOrderAdminCenterHyphenated() {
         SelenideElement form = $(".form");
+        String planningDate = generateDate(3);
 
         form.$("[data-test-id = 'city'] input").setValue("Улан-Удэ");
-        form.$("[data-test-id = 'date'] input").setValue(setDate(3));
+        form.$("[data-test-id = 'date'] input").doubleClick();
+        $("[data-test-id=date] input").sendKeys(Keys.BACK_SPACE);
+        form.$("[data-test-id = 'date'] input").setValue(planningDate);
         form.$("[data-test-id = 'name'] input").setValue("Иванова Анна");
         form.$("[data-test-id = 'phone'] input").setValue("+71234567890");
         form.$("[data-test-id = 'agreement']").click();
         form.$$("[type = 'button']").last().click();
 
-        $("[data-test-id='notification']").shouldBe(visible, Duration.ofSeconds(15));
+        $(".notification__content")
+                .shouldHave(Condition.text("Встреча успешно забронирована на " + planningDate), Duration.ofSeconds(15))
+                .shouldBe(Condition.visible);
     }
 
     @Test
     void shouldTestOrderCityNotAdminCenter() {
         SelenideElement form = $(".form");
+        String planningDate = generateDate(3);
 
         form.$("[data-test-id = 'city'] input").setValue("Стерлитамак");
-        form.$("[data-test-id = 'date'] input").setValue(setDate(3));
+        form.$("[data-test-id = 'date'] input").doubleClick();
+        $("[data-test-id=date] input").sendKeys(Keys.BACK_SPACE);
+        form.$("[data-test-id = 'date'] input").setValue(planningDate);
         form.$("[data-test-id = 'name'] input").setValue("Иванова Анна");
         form.$("[data-test-id = 'phone'] input").setValue("+71234567890");
         form.$("[data-test-id = 'agreement']").click();
@@ -103,9 +83,12 @@ public class cardDeliveryTest {
     @Test
     void shouldTestOrderCityLatin() {
         SelenideElement form = $(".form");
+        String planningDate = generateDate(3);
 
         form.$("[data-test-id = 'city'] input").setValue("Kazan");
-        form.$("[data-test-id = 'date'] input").setValue(setDate(3));
+        form.$("[data-test-id = 'date'] input").doubleClick();
+        $("[data-test-id=date] input").sendKeys(Keys.BACK_SPACE);
+        form.$("[data-test-id = 'date'] input").setValue(planningDate);
         form.$("[data-test-id = 'name'] input").setValue("Иванова Анна");
         form.$("[data-test-id = 'phone'] input").setValue("+71234567890");
         form.$("[data-test-id = 'agreement']").click();
@@ -118,9 +101,12 @@ public class cardDeliveryTest {
     @Test
     void shouldTestOrderDateOld() {
         SelenideElement form = $(".form");
+        String planningDate = generateDate(-3);
 
         form.$("[data-test-id = 'city'] input").setValue("Казань");
-        form.$("[data-test-id = 'date'] input").setValue(setDate(-3));
+        form.$("[data-test-id = 'date'] input").doubleClick();
+        $("[data-test-id=date] input").sendKeys(Keys.BACK_SPACE);
+        form.$("[data-test-id = 'date'] input").setValue(planningDate);
         form.$("[data-test-id = 'name'] input").setValue("Иванова Анна");
         form.$("[data-test-id = 'phone'] input").setValue("+71234567890");
         form.$("[data-test-id = 'agreement']").click();
@@ -133,9 +119,12 @@ public class cardDeliveryTest {
     @Test
     void shouldTestOrderDateActual() {
         SelenideElement form = $(".form");
+        String planningDate = generateDate(0);
 
         form.$("[data-test-id = 'city'] input").setValue("Казань");
-        form.$("[data-test-id = 'date'] input").setValue(setDate(0));
+        form.$("[data-test-id = 'date'] input").doubleClick();
+        $("[data-test-id=date] input").sendKeys(Keys.BACK_SPACE);
+        form.$("[data-test-id = 'date'] input").setValue(planningDate);
         form.$("[data-test-id = 'name'] input").setValue("Иванова Анна");
         form.$("[data-test-id = 'phone'] input").setValue("+71234567890");
         form.$("[data-test-id = 'agreement']").click();
@@ -148,37 +137,50 @@ public class cardDeliveryTest {
     @Test
     void shouldTestOrderDateFuture() {
         SelenideElement form = $(".form");
+        String planningDate = generateDate(150);
 
         form.$("[data-test-id = 'city'] input").setValue("Казань");
-        form.$("[data-test-id='date'] [value]").setValue(setDate(150));
+        form.$("[data-test-id = 'date'] input").doubleClick();
+        $("[data-test-id=date] input").sendKeys(Keys.BACK_SPACE);
+        form.$("[data-test-id='date'] [value]").setValue(planningDate);
         form.$("[data-test-id = 'name'] input").setValue("Иванова Анна");
         form.$("[data-test-id = 'phone'] input").setValue("+71234567890");
         form.$("[data-test-id = 'agreement']").click();
         form.$$("[type = 'button']").last().click();
 
-        $("[data-test-id='notification']").shouldBe(visible, Duration.ofSeconds(15));
+        $(".notification__content")
+                .shouldHave(Condition.text("Встреча успешно забронирована на " + planningDate), Duration.ofSeconds(15))
+                .shouldBe(Condition.visible);
     }
 
     @Test
     void shouldTestOrderNameHyphen() {
         SelenideElement form = $(".form");
+        String planningDate = generateDate(3);
 
         form.$("[data-test-id = 'city'] input").setValue("Казань");
-        form.$("[data-test-id = 'date'] input").setValue(setDate(3));
+        form.$("[data-test-id = 'date'] input").doubleClick();
+        $("[data-test-id=date] input").sendKeys(Keys.BACK_SPACE);
+        form.$("[data-test-id = 'date'] input").setValue(planningDate);
         form.$("[data-test-id = 'name'] input").setValue("Сергеев-Петров Андрей");
         form.$("[data-test-id = 'phone'] input").setValue("+71234567890");
         form.$("[data-test-id = 'agreement']").click();
         form.$$("[type = 'button']").last().click();
 
-        $("[data-test-id='notification']").shouldBe(visible, Duration.ofSeconds(15));
+        $(".notification__content")
+                .shouldHave(Condition.text("Встреча успешно забронирована на " + planningDate), Duration.ofSeconds(15))
+                .shouldBe(Condition.visible);
     }
 
     @Test
     void shouldTestOrderNameLatin() {
         SelenideElement form = $(".form");
+        String planningDate = generateDate(3);
 
         form.$("[data-test-id = 'city'] input").setValue("Казань");
-        form.$("[data-test-id = 'date'] input").setValue(setDate(3));
+        form.$("[data-test-id = 'date'] input").doubleClick();
+        $("[data-test-id=date] input").sendKeys(Keys.BACK_SPACE);
+        form.$("[data-test-id = 'date'] input").setValue(planningDate);
         form.$("[data-test-id = 'name'] input").setValue("Sirotkin Dmitry");
         form.$("[data-test-id = 'phone'] input").setValue("+71234567890");
         form.$("[data-test-id = 'agreement']").click();
@@ -191,9 +193,12 @@ public class cardDeliveryTest {
     @Test
     void shouldTestOrderPhoneLowLength() {
         SelenideElement form = $(".form");
+        String planningDate = generateDate(3);
 
         form.$("[data-test-id = 'city'] input").setValue("Казань");
-        form.$("[data-test-id = 'date'] input").setValue(setDate(3));
+        form.$("[data-test-id = 'date'] input").doubleClick();
+        $("[data-test-id=date] input").sendKeys(Keys.BACK_SPACE);
+        form.$("[data-test-id = 'date'] input").setValue(planningDate);
         form.$("[data-test-id = 'name'] input").setValue("Петров Анатолий");
         form.$("[data-test-id = 'phone'] input").setValue("123");
         form.$("[data-test-id = 'agreement']").click();
@@ -206,9 +211,12 @@ public class cardDeliveryTest {
     @Test
     void shouldTestOrderPhoneHighLength() {
         SelenideElement form = $(".form");
+        String planningDate = generateDate(3);
 
         form.$("[data-test-id = 'city'] input").setValue("Казань");
-        form.$("[data-test-id = 'date'] input").setValue(setDate(3));
+        form.$("[data-test-id = 'date'] input").doubleClick();
+        $("[data-test-id=date] input").sendKeys(Keys.BACK_SPACE);
+        form.$("[data-test-id = 'date'] input").setValue(planningDate);
         form.$("[data-test-id = 'name'] input").setValue("Петров Анатолий");
         form.$("[data-test-id = 'phone'] input").setValue("+712345678901");
         form.$("[data-test-id = 'agreement']").click();
@@ -221,9 +229,12 @@ public class cardDeliveryTest {
     @Test
     void shouldTestOrderPhoneText() {
         SelenideElement form = $(".form");
+        String planningDate = generateDate(3);
 
         form.$("[data-test-id = 'city'] input").setValue("Казань");
-        form.$("[data-test-id = 'date'] input").setValue(setDate(3));
+        form.$("[data-test-id = 'date'] input").doubleClick();
+        $("[data-test-id=date] input").sendKeys(Keys.BACK_SPACE);
+        form.$("[data-test-id = 'date'] input").setValue(planningDate);
         form.$("[data-test-id = 'name'] input").setValue("Петров Анатолий");
         form.$("[data-test-id = 'phone'] input").setValue("number");
         form.$("[data-test-id = 'agreement']").click();
@@ -236,9 +247,12 @@ public class cardDeliveryTest {
     @Test
     void shouldTestOrderCheckboxOff() {
         SelenideElement form = $(".form");
+        String planningDate = generateDate(3);
 
         form.$("[data-test-id = 'city'] input").setValue("Казань");
-        form.$("[data-test-id = 'date'] input").setValue(setDate(3));
+        form.$("[data-test-id = 'date'] input").doubleClick();
+        $("[data-test-id=date] input").sendKeys(Keys.BACK_SPACE);
+        form.$("[data-test-id = 'date'] input").setValue(planningDate);
         form.$("[data-test-id = 'name'] input").setValue("Петров Анатолий");
         form.$("[data-test-id = 'phone'] input").setValue("+71234567890");
         form.$$("[type = 'button']").last().click();
